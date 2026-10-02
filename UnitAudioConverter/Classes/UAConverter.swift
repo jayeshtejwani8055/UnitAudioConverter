@@ -45,6 +45,7 @@ public class UAConverter {
                         }
                     } catch {
                         debugPrint("workItem convert: \(error)")
+                        self.finish(session: session, error: error)
                     }
                 }
                 self.audioProcessingQueue.async(execute: workItem)
