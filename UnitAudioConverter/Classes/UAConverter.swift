@@ -24,9 +24,10 @@ public class UAConverter {
     }
 
     @discardableResult
-    public func convert(source: URL, destination: URL, outputType:UAFileType) -> UAConvertSession {
+    public func convert(source: URL, destination: URL, outputType:UAFileType, completion: @escaping UAConvertCompletionBlock) -> UAConvertSession {
         // Không nén
         let session = UAConvertSession()
+        session.state.completionBlock = completion
         let _ = UAConverter.convertToM4a(fileURL: source) { convertUrl in
             if outputType == .mp3 {
                 let converter = ExtAudioConverter()
@@ -75,7 +76,7 @@ public class UAConverter {
     }
     
     func finish(session: UAConvertSession, error: Error?) {
-        session.state.completionBlock?(error)
+        session.complete(error: error)
         activeSessions.remove(session)
     }
 }

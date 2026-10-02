@@ -16,6 +16,9 @@ public class UAConvertSession {
     
     var isCancelled = false
     var state = MutableState()
+
+    private var pendingCompletionError: Error?
+    private var hasPendingCompletion = false
     
     var timer: Timer?
     
@@ -46,7 +49,25 @@ public class UAConvertSession {
     @discardableResult
     public func completion(_ block: @escaping UAConvertCompletionBlock) -> Self {
         state.completionBlock = block
+
+        if hasPendingCompletion {
+            hasPendingCompletion = false
+            let error = pendingCompletionError
+            pendingCompletionError = nil
+
+            block(error)
+        }
+
         return self
+    }
+
+    func complete(error: Error?) {
+        if let completionBlock = state.completionBlock {
+            completionBlock(error)
+        } else {
+            pendingCompletionError = error
+            hasPendingCompletion = true
+        }
     }
 }
 
